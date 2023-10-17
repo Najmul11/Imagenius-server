@@ -8,7 +8,6 @@ import httpStatus from 'http-status';
 const getAllCategories = catchAsyncError(
   async (req: Request, res: Response) => {
     const result = await CategoryService.getAllCategories();
-    console.log('hit');
 
     sendResponse(res, {
       statusCode: httpStatus.OK,

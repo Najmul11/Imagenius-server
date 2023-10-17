@@ -42,11 +42,6 @@ const createUser = async (
   return sanitizedResult;
 };
 
-const getAllUsers = async () => {
-  const result = await User.find({}, { avatar: 0, password: 0 });
-  return result;
-};
-
 const loginUser = async (payload: IUserLogin): Promise<IUserLoginResponse> => {
   const { email: givenEmail, password } = payload;
 
@@ -66,7 +61,6 @@ const loginUser = async (payload: IUserLogin): Promise<IUserLoginResponse> => {
 
   // create access token , refresh token
   const { _id, email, name, role } = isUserExist;
-  console.log(role);
 
   const photoUrl = isUserExist.avatar?.photoUrl;
 
@@ -121,6 +115,37 @@ const refreshToken = async (token: string): Promise<IRefreshTokenResponse> => {
   };
 };
 
+const getAllUsers = async () => {
+  const result = await User.find({}, { avatar: 0, password: 0 });
+  return result;
+};
+
+const makeAdmin = async (userId: string): Promise<IUser | null> => {
+  const userExist = await User.findById(userId);
+  if (!userExist)
+    throw new ApiError(httpStatus.BAD_REQUEST, 'User do not exist here');
+
+  const options = {
+    role: 'admin',
+  };
+
+  const result = await User.findByIdAndUpdate(userId, options, { new: true });
+  return result;
+};
+
+const removeAdmin = async (userId: string): Promise<IUser | null> => {
+  const userExist = await User.findById(userId);
+  if (!userExist)
+    throw new ApiError(httpStatus.BAD_REQUEST, 'User do not exist');
+
+  const options = {
+    role: 'user',
+  };
+
+  const result = await User.findByIdAndUpdate(userId, options, { new: true });
+  return result;
+};
+
 const getProfile = async (userId: string) => {
   const result = await User.findById(userId, {
     avatar: 1,
@@ -131,10 +156,31 @@ const getProfile = async (userId: string) => {
   return result;
 };
 
+const deleteUser = async (
+  userId: string,
+  role: string
+): Promise<IUser | null> => {
+  const userExist = await User.findById(userId);
+  if (!userExist)
+    throw new ApiError(httpStatus.BAD_REQUEST, 'User do not exist');
+
+  if (userExist.role === 'super admin')
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Not authorized');
+
+  if (role === 'admin' && userExist.role == 'admin')
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Not authorized');
+
+  const result = await User.findByIdAndDelete(userId);
+  return result;
+};
+
 export const UserService = {
   createUser,
   loginUser,
   refreshToken,
   getProfile,
   getAllUsers,
+  makeAdmin,
+  removeAdmin,
+  deleteUser,
 };

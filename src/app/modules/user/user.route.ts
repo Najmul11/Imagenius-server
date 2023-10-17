@@ -3,7 +3,7 @@ import { UserController } from './user.controller';
 import singleUpload from '../../middlewares/multer';
 import validateRequest from '../../middlewares/validateRequest';
 import { Uservalidation } from './user.validation';
-import auth from '../../middlewares/auth';
+import auth, { ENUM_USER_ROLE } from '../../middlewares/auth';
 
 const router = express.Router();
 
@@ -14,7 +14,28 @@ router.post(
   validateRequest(Uservalidation.userLoginZodSchema),
   UserController.loginUser
 );
-router.get('/get-profile', auth, UserController.getProfile);
+
+router.patch(
+  '/make-admin',
+  auth(ENUM_USER_ROLE.SUPER_ADMIN),
+  UserController.makeAdmin
+);
+router.patch(
+  '/remove-admin',
+  auth(ENUM_USER_ROLE.SUPER_ADMIN),
+  UserController.removeAdmin
+);
+router.delete(
+  '/delete-user',
+  auth(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN),
+  UserController.deleteUser
+);
+
+router.get(
+  '/get-profile',
+  auth(ENUM_USER_ROLE.USER),
+  UserController.getProfile
+);
 router.get('/', UserController.getAllUsers);
 
 router.post(

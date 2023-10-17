@@ -14,7 +14,7 @@ export type IUser = {
   password: string;
   name: string;
   avatar?: IAvatar;
-  role: 'user' | 'admin';
+  role: 'user' | 'admin' | 'super admin';
   wishlist?: IWishlist[];
 };
 

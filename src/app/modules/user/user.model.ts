@@ -37,7 +37,7 @@ const UserSchema = new Schema<IUser, Record<string, unknown>, IUserMethods>(
     },
     role: {
       type: String,
-      enum: ['admin', 'user'],
+      enum: ['admin', 'user', 'super admin'],
       default: 'user',
     },
   },

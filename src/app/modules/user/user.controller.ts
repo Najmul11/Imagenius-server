@@ -26,17 +26,6 @@ const createUser = catchAsyncError(async (req: Request, res: Response) => {
   });
 });
 
-const getAllUsers = catchAsyncError(async (req: Request, res: Response) => {
-  const result = await UserService.getAllUsers();
-
-  sendResponse(res, {
-    statusCode: httpStatus.OK,
-    success: true,
-    message: 'All users retrieved successfully',
-    data: result,
-  });
-});
-
 const loginUser = catchAsyncError(async (req: Request, res: Response) => {
   const { ...loginData } = req.body;
 
@@ -76,6 +65,40 @@ const refreshToken = catchAsyncError(async (req: Request, res: Response) => {
   });
 });
 
+const getAllUsers = catchAsyncError(async (req: Request, res: Response) => {
+  const result = await UserService.getAllUsers();
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'All users retrieved successfully',
+    data: result,
+  });
+});
+
+const makeAdmin = catchAsyncError(async (req: Request, res: Response) => {
+  const { userId } = req.body;
+  const result = await UserService.makeAdmin(userId);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'User promoted as admin successfully',
+    data: result,
+  });
+});
+const removeAdmin = catchAsyncError(async (req: Request, res: Response) => {
+  const { userId } = req.body;
+  const result = await UserService.removeAdmin(userId);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'User demoted from admin successfully',
+    data: result,
+  });
+});
+
 const getProfile = catchAsyncError(async (req: Request, res: Response) => {
   const user = req.user;
   const result = await UserService.getProfile(user?._id);
@@ -87,10 +110,27 @@ const getProfile = catchAsyncError(async (req: Request, res: Response) => {
   });
 });
 
+const deleteUser = catchAsyncError(async (req: Request, res: Response) => {
+  const { userId } = req.body;
+  const { role } = req.user;
+
+  const result = await UserService.deleteUser(userId, role);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'User deleted successfully',
+    data: result,
+  });
+});
+
 export const UserController = {
   createUser,
   loginUser,
   refreshToken,
   getProfile,
   getAllUsers,
+  makeAdmin,
+  removeAdmin,
+  deleteUser,
 };
