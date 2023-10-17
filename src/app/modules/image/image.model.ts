@@ -18,6 +18,11 @@ const imageSchema = new Schema<IImage, Record<string, unknown>>({
     type: Number,
     required: true,
   },
+  category: {
+    type: Schema.Types.ObjectId,
+    ref: 'Category',
+    required: true,
+  },
 });
 
 export const Image = model<IImage, Imagemodel>('Image', imageSchema);

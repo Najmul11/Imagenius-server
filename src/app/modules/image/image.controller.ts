@@ -31,7 +31,34 @@ const getAllmages = catchAsyncError(async (req: Request, res: Response) => {
   });
 });
 
+const editImage = catchAsyncError(async (req: Request, res: Response) => {
+  const payload = req.body;
+  const { imageId } = req.params;
+  const result = await ImageService.editImage(payload, imageId);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Image data edited successfully',
+    data: result,
+  });
+});
+
+const deleteImage = catchAsyncError(async (req: Request, res: Response) => {
+  const { imageId } = req.params;
+  const result = await ImageService.deleteImage(imageId);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Image deleted successfully',
+    data: result,
+  });
+});
+
 export const ImageController = {
   getAllmages,
   addImage,
+  deleteImage,
+  editImage,
 };
