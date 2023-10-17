@@ -36,6 +36,18 @@ router.get(
   auth(ENUM_USER_ROLE.USER),
   UserController.getProfile
 );
+
+router.patch(
+  '/update-profile',
+  auth(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.USER),
+  UserController.changePaymentMethod
+);
+
+router.patch(
+  '/change-password',
+  auth(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.USER),
+  UserController.changePassword
+);
 router.get('/', UserController.getAllUsers);
 
 router.post(

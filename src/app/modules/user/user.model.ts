@@ -40,6 +40,11 @@ const UserSchema = new Schema<IUser, Record<string, unknown>, IUserMethods>(
       enum: ['admin', 'user', 'super admin'],
       default: 'user',
     },
+    payment: {
+      type: String,
+      enum: ['Bkash', 'Nagad', 'Binance'],
+      default: 'Bkash',
+    },
   },
   {
     timestamps: true,

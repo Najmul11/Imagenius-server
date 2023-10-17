@@ -110,11 +110,40 @@ const getProfile = catchAsyncError(async (req: Request, res: Response) => {
   });
 });
 
+const changePaymentMethod = catchAsyncError(
+  async (req: Request, res: Response) => {
+    const payload = req.body;
+    const user = req.user;
+
+    const result = await UserService.changePaymentMethod(payload, user?._id);
+
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: 'Profile updated successfully',
+      data: result,
+    });
+  }
+);
+const changePassword = catchAsyncError(async (req: Request, res: Response) => {
+  const payload = req.body;
+  const user = req.user;
+
+  const result = await UserService.changePassword(payload, user?._id);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Password  updated successfully',
+    data: result,
+  });
+});
+
 const deleteUser = catchAsyncError(async (req: Request, res: Response) => {
   const { userId } = req.body;
-  const { role } = req.user;
+  const user = req.user;
 
-  const result = await UserService.deleteUser(userId, role);
+  const result = await UserService.deleteUser(userId, user?.role);
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -133,4 +162,6 @@ export const UserController = {
   makeAdmin,
   removeAdmin,
   deleteUser,
+  changePaymentMethod,
+  changePassword,
 };

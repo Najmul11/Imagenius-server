@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 /* eslint-disable no-undef */
-import { IUser, IUserLogin } from './user.interface';
+import { IChangePassword, IUser, IUserLogin } from './user.interface';
 import { User } from './user.model';
 import ApiError from '../../../errors/ApiError';
 import httpStatus from 'http-status';
@@ -12,6 +12,7 @@ import { jwtHelpers } from '../../../jwt/jwtHelper';
 import config from '../../../config';
 import { Secret } from 'jsonwebtoken';
 import { cloudinaryHelper } from '../../../cloudinary/cloudinaryHelper';
+import bcrypt from 'bcrypt';
 
 const createUser = async (
   user: IUser,
@@ -92,7 +93,6 @@ const refreshToken = async (token: string): Promise<IRefreshTokenResponse> => {
   } catch (error) {
     throw new ApiError(httpStatus.FORBIDDEN, 'Invalid refresh token');
   }
-  // checking deleted user refresh  token
 
   const { _id } = verifiedToken;
 
@@ -101,7 +101,6 @@ const refreshToken = async (token: string): Promise<IRefreshTokenResponse> => {
     throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
   }
 
-  // generate new user refresh token
   const newAccesstoken = jwtHelpers.createToken(
     {
       _id: isUserExist._id,
@@ -146,6 +145,44 @@ const removeAdmin = async (userId: string): Promise<IUser | null> => {
   return result;
 };
 
+const changePaymentMethod = async (payload: Partial<IUser>, userId: string) => {
+  const userExist = await User.findById(userId);
+  if (!userExist)
+    throw new ApiError(httpStatus.BAD_REQUEST, 'User do not exist');
+
+  const result = await User.findByIdAndUpdate(userId, payload, { new: true });
+  return result;
+};
+
+const changePassword = async (
+  payload: IChangePassword,
+  userId: string
+): Promise<void> => {
+  const { oldPassword, newPassword } = payload;
+
+  const user = await User.findById(userId).select('+password');
+
+  if (!user) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
+  }
+
+  if (!(await bcrypt.compare(oldPassword, user.password))) {
+    throw new ApiError(httpStatus.UNAUTHORIZED, ' Old password is incorrect');
+  }
+
+  const hashedNewPassword = await bcrypt.hash(
+    newPassword,
+    Number(config.bcrypt_salt_round)
+  );
+
+  const updatedData = {
+    password: hashedNewPassword,
+    passwordChangedAt: new Date(),
+  };
+
+  await User.findByIdAndUpdate(userId, updatedData);
+};
+
 const getProfile = async (userId: string) => {
   const result = await User.findById(userId, {
     avatar: 1,
@@ -183,4 +220,6 @@ export const UserService = {
   makeAdmin,
   removeAdmin,
   deleteUser,
+  changePaymentMethod,
+  changePassword,
 };

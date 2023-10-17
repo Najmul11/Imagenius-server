@@ -15,6 +15,7 @@ export type IUser = {
   name: string;
   avatar?: IAvatar;
   role: 'user' | 'admin' | 'super admin';
+  payment: 'Bkash' | 'Nagad' | 'Binance';
   wishlist?: IWishlist[];
 };
 
@@ -31,4 +32,9 @@ export type Usermodel = Model<IUser, Record<string, unknown>, IUserMethods>;
 export type IUserLogin = {
   email: string;
   password: string;
+};
+
+export type IChangePassword = {
+  oldPassword: string;
+  newPassword: string;
 };
