@@ -110,6 +110,20 @@ const getProfile = catchAsyncError(async (req: Request, res: Response) => {
   });
 });
 
+const updateProfile = catchAsyncError(async (req: Request, res: Response) => {
+  const payload = req.body;
+  const user = req.user;
+
+  const result = await UserService.updateProfile(payload, user?._id);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Profile updated successfully',
+    data: result,
+  });
+});
+
 const changePaymentMethod = catchAsyncError(
   async (req: Request, res: Response) => {
     const payload = req.body;
@@ -120,7 +134,7 @@ const changePaymentMethod = catchAsyncError(
     sendResponse(res, {
       statusCode: httpStatus.OK,
       success: true,
-      message: 'Profile updated successfully',
+      message: 'Payment method changed successfully',
       data: result,
     });
   }
@@ -164,4 +178,5 @@ export const UserController = {
   deleteUser,
   changePaymentMethod,
   changePassword,
+  updateProfile,
 };

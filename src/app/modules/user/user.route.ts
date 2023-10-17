@@ -33,12 +33,18 @@ router.delete(
 
 router.get(
   '/get-profile',
-  auth(ENUM_USER_ROLE.USER),
+  auth(ENUM_USER_ROLE.USER, ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN),
   UserController.getProfile
 );
 
 router.patch(
   '/update-profile',
+  auth(ENUM_USER_ROLE.USER, ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN),
+  UserController.updateProfile
+);
+
+router.patch(
+  '/change-payment',
   auth(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.USER),
   UserController.changePaymentMethod
 );

@@ -145,6 +145,14 @@ const removeAdmin = async (userId: string): Promise<IUser | null> => {
   return result;
 };
 
+const updateProfile = async (payload: Partial<IUser>, userId: string) => {
+  const userExist = await User.findById(userId);
+  if (!userExist)
+    throw new ApiError(httpStatus.BAD_REQUEST, 'User do not exist');
+
+  const result = await User.findByIdAndUpdate(userId, payload, { new: true });
+  return result;
+};
 const changePaymentMethod = async (payload: Partial<IUser>, userId: string) => {
   const userExist = await User.findById(userId);
   if (!userExist)
@@ -188,6 +196,7 @@ const getProfile = async (userId: string) => {
     avatar: 1,
     email: 1,
     name: 1,
+    payment: 1,
   });
 
   return result;
@@ -222,4 +231,5 @@ export const UserService = {
   deleteUser,
   changePaymentMethod,
   changePassword,
+  updateProfile,
 };
