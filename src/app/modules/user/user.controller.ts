@@ -26,6 +26,17 @@ const createUser = catchAsyncError(async (req: Request, res: Response) => {
   });
 });
 
+const getAllUsers = catchAsyncError(async (req: Request, res: Response) => {
+  const result = await UserService.getAllUsers();
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'All users retrieved successfully',
+    data: result,
+  });
+});
+
 const loginUser = catchAsyncError(async (req: Request, res: Response) => {
   const { ...loginData } = req.body;
 
@@ -81,4 +92,5 @@ export const UserController = {
   loginUser,
   refreshToken,
   getProfile,
+  getAllUsers,
 };

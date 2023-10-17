@@ -15,6 +15,7 @@ router.post(
   UserController.loginUser
 );
 router.get('/get-profile', auth, UserController.getProfile);
+router.get('/', UserController.getAllUsers);
 
 router.post(
   '/refresh-token',

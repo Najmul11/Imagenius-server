@@ -42,6 +42,11 @@ const createUser = async (
   return sanitizedResult;
 };
 
+const getAllUsers = async () => {
+  const result = await User.find({}, { avatar: 0, password: 0 });
+  return result;
+};
+
 const loginUser = async (payload: IUserLogin): Promise<IUserLoginResponse> => {
   const { email: givenEmail, password } = payload;
 
@@ -60,10 +65,13 @@ const loginUser = async (payload: IUserLogin): Promise<IUserLoginResponse> => {
   }
 
   // create access token , refresh token
-  const { _id, email } = isUserExist;
+  const { _id, email, name, role } = isUserExist;
+  console.log(role);
+
+  const photoUrl = isUserExist.avatar?.photoUrl;
 
   const accessToken = jwtHelpers.createToken(
-    { _id, email },
+    { _id, email, name, photoUrl, role },
     config.jwt.secret as Secret,
     config.jwt.expires_in as string
   );
@@ -115,10 +123,10 @@ const refreshToken = async (token: string): Promise<IRefreshTokenResponse> => {
 
 const getProfile = async (userId: string) => {
   const result = await User.findById(userId, {
-    wishlist: 1,
     avatar: 1,
     email: 1,
-  }).populate('wishlist', 'bookCover title author');
+    name: 1,
+  });
 
   return result;
 };
@@ -128,4 +136,5 @@ export const UserService = {
   loginUser,
   refreshToken,
   getProfile,
+  getAllUsers,
 };

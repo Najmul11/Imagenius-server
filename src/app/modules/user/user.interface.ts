@@ -5,7 +5,7 @@ export type IWishlist = Types.ObjectId;
 
 type IAvatar = {
   publicId: string;
-  photoUrl: string | undefined;
+  photoUrl: string;
 };
 
 export type IUser = {
@@ -14,6 +14,7 @@ export type IUser = {
   password: string;
   name: string;
   avatar?: IAvatar;
+  role: 'user' | 'admin';
   wishlist?: IWishlist[];
 };
 
@@ -21,7 +22,7 @@ export type IUserMethods = {
   isUserExist(email: string): Promise<Partial<IUser> | null>;
   isPasswordMatched(
     givenPassword: string,
-    savedPassword: string,
+    savedPassword: string
   ): Promise<boolean>;
 };
 
