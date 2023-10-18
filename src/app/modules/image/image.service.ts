@@ -3,8 +3,12 @@
 import httpStatus from 'http-status';
 import { cloudinaryHelper } from '../../../cloudinary/cloudinaryHelper';
 import ApiError from '../../../errors/ApiError';
-import { IImage } from './image.interface';
+import { IImage, IImageFilters } from './image.interface';
 import { Image } from './image.model';
+import { IPaginationOptions } from '../../../pagination/pagination.interface';
+import { paginationHelpers } from '../../../pagination/paginationHelpers';
+import { SortOrder } from 'mongoose';
+import { imageSearchableFields } from './image.constant';
 
 const addImage = async (
   imageInfo: IImage,
@@ -28,8 +32,63 @@ const addImage = async (
 
   return result;
 };
-const getAllmages = async () => {
-  const result = await Image.find({}).populate('category');
+const getAllmages = async (
+  filters: IImageFilters,
+  paginationOptions: IPaginationOptions
+) => {
+  const { page, limit, skip, sortBy, sortOrder } =
+    paginationHelpers.calculatePagination(paginationOptions);
+
+  const sortConditions: { [key: string]: SortOrder } = {};
+
+  if (sortBy && sortOrder) {
+    sortConditions[sortBy] = sortOrder;
+  }
+
+  const { searchTerm, ...filtersData } = filters;
+  const andConditions = [];
+
+  if (searchTerm) {
+    andConditions.push({
+      $or: imageSearchableFields.map(field => ({
+        [field]: {
+          $regex: searchTerm,
+          $options: 'i',
+        },
+      })),
+    });
+  }
+
+  if (Object.keys(filtersData).length) {
+    andConditions.push({
+      $and: Object.entries(filtersData).map(([field, value]) => ({
+        [field]: value,
+      })),
+    });
+  }
+
+  const whereConditions =
+    andConditions.length > 0 ? { $and: andConditions } : {};
+
+  const total = await Image.countDocuments(whereConditions);
+
+  const result = await Image.find(whereConditions)
+    .sort(sortConditions)
+    .skip(skip)
+    .limit(limit);
+
+  return {
+    meta: {
+      page,
+      limit,
+      total,
+    },
+    data: result,
+  };
+};
+
+const getSingleImage = async (imageId: string) => {
+  const result = await Image.findById(imageId);
   return result;
 };
 
@@ -40,7 +99,7 @@ const editImage = async (payload: Partial<IImage>, imageId: string) => {
 
   const result = await Image.findByIdAndUpdate(imageId, payload, {
     new: true,
-  }).populate('category');
+  });
   return result;
 };
 
@@ -59,4 +118,5 @@ export const ImageService = {
   getAllmages,
   editImage,
   deleteImage,
+  getSingleImage,
 };

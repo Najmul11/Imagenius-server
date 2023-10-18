@@ -7,7 +7,12 @@ export type IImage = {
   publicId: string;
   title: string;
   price: number;
-  category: Types.ObjectId;
+  category: string;
+};
+
+export type IImageFilters = {
+  searchTerm?: string;
+  category?: string;
 };
 
 export type Imagemodel = Model<IImage, Record<string, unknown>>;

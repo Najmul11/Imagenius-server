@@ -22,6 +22,7 @@ router.delete(
   auth(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN),
   ImageController.deleteImage
 );
+router.get('/:imageId', ImageController.deleteImage);
 router.get('/', ImageController.getAllmages);
 
 export const ImageRoutes = router;

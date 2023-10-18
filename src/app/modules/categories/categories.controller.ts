@@ -4,16 +4,26 @@ import catchAsyncError from '../../../shared/catchAsyncError';
 import { CategoryService } from './categories.service';
 import sendResponse from '../../../shared/sendResponse';
 import httpStatus from 'http-status';
+import pick from '../../../shared/pick';
+import { categoryFilterableFields } from './category.contant';
+import { paginationFields } from '../../../pagination/pagination.constant';
 
 const getAllCategories = catchAsyncError(
   async (req: Request, res: Response) => {
-    const result = await CategoryService.getAllCategories();
+    const filters = pick(req.query, categoryFilterableFields);
+    const paginationOptions = pick(req.query, paginationFields);
+
+    const result = await CategoryService.getAllCategories(
+      filters,
+      paginationOptions
+    );
 
     sendResponse(res, {
       statusCode: httpStatus.OK,
       success: true,
       message: 'All categories retrieved successfully',
-      data: result,
+      meta: result.meta,
+      data: result.data,
     });
   }
 );

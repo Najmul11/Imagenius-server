@@ -5,6 +5,9 @@ import { ImageService } from './image.service';
 import sendResponse from '../../../shared/sendResponse';
 import httpStatus from 'http-status';
 import { IImage } from './image.interface';
+import { imageFilterableFields } from './image.constant';
+import { paginationFields } from '../../../pagination/pagination.constant';
+import pick from '../../../shared/pick';
 
 const addImage = catchAsyncError(async (req: Request, res: Response) => {
   const imageInfo = req.body;
@@ -21,12 +24,29 @@ const addImage = catchAsyncError(async (req: Request, res: Response) => {
 });
 
 const getAllmages = catchAsyncError(async (req: Request, res: Response) => {
-  const result = await ImageService.getAllmages();
+  const filters = pick(req.query, imageFilterableFields);
+
+  const paginationOptions = pick(req.query, paginationFields);
+
+  const result = await ImageService.getAllmages(filters, paginationOptions);
+
+  sendResponse<IImage[]>(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'All images retrieved successfully',
+    meta: result.meta,
+    data: result.data,
+  });
+});
+
+const getSingleImage = catchAsyncError(async (req: Request, res: Response) => {
+  const { imageId } = req.params;
+  const result = await ImageService.getSingleImage(imageId);
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
-    message: 'All images retrieved successfully',
+    message: 'Image retrieved successfully',
     data: result,
   });
 });
@@ -61,4 +81,5 @@ export const ImageController = {
   addImage,
   deleteImage,
   editImage,
+  getSingleImage,
 };

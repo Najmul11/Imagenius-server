@@ -19,8 +19,7 @@ const imageSchema = new Schema<IImage, Record<string, unknown>>({
     required: true,
   },
   category: {
-    type: Schema.Types.ObjectId,
-    ref: 'Category',
+    type: String,
     required: true,
   },
 });
