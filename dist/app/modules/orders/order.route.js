@@ -34,5 +34,5 @@ const router = express_1.default.Router();
 router.post('/create-order', (0, auth_1.default)(auth_1.ENUM_USER_ROLE.USER), order_controller_1.OrderController.createOrder);
 router.patch('/cancel-order/:orderId', (0, auth_1.default)(auth_1.ENUM_USER_ROLE.USER, auth_1.ENUM_USER_ROLE.ADMIN, auth_1.ENUM_USER_ROLE.SUPER_ADMIN), order_controller_1.OrderController.cancelOrder);
 router.patch('/deliver-order/:orderId', (0, auth_1.default)(auth_1.ENUM_USER_ROLE.ADMIN, auth_1.ENUM_USER_ROLE.SUPER_ADMIN), order_controller_1.OrderController.deliverOrder);
-router.get('/', order_controller_1.OrderController.getAllOrders);
+router.get('/', (0, auth_1.default)(auth_1.ENUM_USER_ROLE.ADMIN, auth_1.ENUM_USER_ROLE.SUPER_ADMIN, auth_1.ENUM_USER_ROLE.USER), order_controller_1.OrderController.getAllOrders);
 exports.OrderRoutes = router;

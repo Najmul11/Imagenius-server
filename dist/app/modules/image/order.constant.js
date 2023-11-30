@@ -1,4 +1,4 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.oederFilterableFields = void 0;
-exports.oederFilterableFields = ['status'];
+exports.orderFilterableFields = void 0;
+exports.orderFilterableFields = ['status', 'customer'];

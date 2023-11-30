@@ -17,8 +17,8 @@ const catchAsyncError_1 = __importDefault(require("../../../shared/catchAsyncErr
 const order_service_1 = require("./order.service");
 const sendResponse_1 = __importDefault(require("../../../shared/sendResponse"));
 const http_status_1 = __importDefault(require("http-status"));
-const order_constant_1 = require("../image/order.constant");
 const pick_1 = __importDefault(require("../../../shared/pick"));
+const order_constant_1 = require("../image/order.constant");
 const createOrder = (0, catchAsyncError_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const ordersData = req.body;
     const user = req.user;
@@ -35,7 +35,7 @@ const createOrder = (0, catchAsyncError_1.default)((req, res) => __awaiter(void 
     });
 }));
 const getAllOrders = (0, catchAsyncError_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const filters = (0, pick_1.default)(req.query, order_constant_1.oederFilterableFields);
+    const filters = (0, pick_1.default)(req.query, order_constant_1.orderFilterableFields);
     const result = yield order_service_1.OrderService.getAllOrders(filters);
     (0, sendResponse_1.default)(res, {
         statusCode: http_status_1.default.OK,
