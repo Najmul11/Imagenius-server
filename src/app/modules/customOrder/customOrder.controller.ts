@@ -24,7 +24,32 @@ const createCustomOrder = catchAsyncError(
     });
   }
 );
+const getAllCustomOrders = catchAsyncError(
+  async (req: Request, res: Response) => {
+    const result = await CustomOrderService.getAllCustomOrders();
+
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: 'Custom orders retrieved ',
+      data: result,
+    });
+  }
+);
+const processImage = catchAsyncError(async (req: Request, res: Response) => {
+  const payload = req.body;
+  const result = await CustomOrderService.processImage(payload);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Order processed successfully ',
+    data: result,
+  });
+});
 
 export const CustomOrderController = {
   createCustomOrder,
+  getAllCustomOrders,
+  processImage,
 };

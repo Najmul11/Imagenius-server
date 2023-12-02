@@ -1,6 +1,7 @@
 import { Model, Types } from 'mongoose';
 
 export type TCustomOrder = {
+  _id?: Types.ObjectId;
   user: Types.ObjectId | undefined;
   image: {
     photoUrl: string;

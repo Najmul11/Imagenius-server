@@ -11,5 +11,16 @@ router.post(
   singleUpload,
   CustomOrderController.createCustomOrder
 );
+router.patch(
+  '/process-order',
+  auth(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN),
+  CustomOrderController.processImage
+);
+
+router.get(
+  '/all-custom-orders',
+  auth(ENUM_USER_ROLE.SUPER_ADMIN),
+  CustomOrderController.getAllCustomOrders
+);
 
 export const CustomOrderRoutes = router;
