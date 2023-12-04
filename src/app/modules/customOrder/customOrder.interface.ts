@@ -11,4 +11,9 @@ export type TCustomOrder = {
   service: string;
 };
 
+export type ICustomOrderFilters = {
+  status?: string;
+  user?: string;
+};
+
 export type CostomOrderModel = Model<TCustomOrder, Record<string, unknown>>;

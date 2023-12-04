@@ -4,7 +4,7 @@
 import httpStatus from 'http-status';
 import { cloudinaryHelper } from '../../../cloudinary/cloudinaryHelper';
 import ApiError from '../../../errors/ApiError';
-import { TCustomOrder } from './customOrder.interface';
+import { ICustomOrderFilters, TCustomOrder } from './customOrder.interface';
 import { CustomOrder } from './customOrder.model';
 import { User } from '../user/user.model';
 import axios from 'axios';
@@ -37,12 +37,27 @@ const createCustomOrder = async (
   await CustomOrder.create(payload);
 };
 
-const getAllCustomOrders = async () => {
-  const result = await CustomOrder.find().populate({
+const getAllCustomOrders = async (filters: ICustomOrderFilters) => {
+  const { ...filtersData } = filters;
+  const andConditions = [];
+
+  if (Object.keys(filtersData).length) {
+    andConditions.push({
+      $and: Object.entries(filtersData).map(([field, value]) => ({
+        [field]: value,
+      })),
+    });
+  }
+
+  const whereConditions =
+    andConditions.length > 0 ? { $and: andConditions } : {};
+
+  const result = await CustomOrder.find(whereConditions).populate({
     path: 'user',
     model: 'User',
     select: '-password',
   });
+
   return result;
 };
 
@@ -52,60 +67,65 @@ const processImage = async (payload: TCustomOrder) => {
   const response = await axios.get(image?.photoUrl, {
     responseType: 'arraybuffer',
   });
-  // const imageBuffer = Buffer.from(response.data, 'binary');
+  const imageBuffer = Buffer.from(response.data, 'binary');
 
   let processedImageBuffer = null;
 
-  // switch (service) {
-  //   case 'Blur':
-  //     processedImageBuffer = await sharp(imageBuffer).blur(5).toBuffer();
-  //     break;
-  //   case 'Remove Background':
-  //     const formData = new FormData();
-  //     formData.append('size', 'auto');
-  //     formData.append('image_url', image?.photoUrl);
+  switch (service) {
+    case 'Blur':
+      processedImageBuffer = await sharp(imageBuffer).blur(5).toBuffer();
+      break;
+    case 'Remove Background':
+      const formData = new FormData();
+      formData.append('size', 'auto');
+      formData.append('image_url', image?.photoUrl);
 
-  //     const response = await axios.post('https://api.remove.bg/v1.0/removebg', {
-  //       data: formData,
-  //       headers: {
-  //         ...formData.getHeaders(),
-  //         'X-Api-Key': config.remove_bg,
-  //       },
-  //       responseType: 'arraybuffer',
-  //       encoding: null,
-  //     });
-  //     // console.log(response.data);
+      try {
+        const response = await axios.post(
+          'https://api.remove.bg/v1.0/removebg',
+          formData,
+          {
+            headers: {
+              ...formData.getHeaders(),
+              'X-Api-Key': config.remove_bg,
+            },
+            responseType: 'arraybuffer',
+            // encoding: null,
+          }
+        );
+        processedImageBuffer = Buffer.from(response.data, 'binary');
+      } catch (error) {
+        // Handle errors
+      }
+      break;
+    case 'Circle Crop':
+      // Handle Circle Crop
+      break;
+    default:
+      // No specific service provided, perform a default operation
+      break;
+  }
 
-  //     processedImageBuffer = Buffer.from(response.data, 'binary');
-  //     break;
-  //   case 'Circle Crop':
-  //     // Handle Circle Crop
-  //     break;
-  //   default:
-  //     // No specific service provided, perform a default operation
-  //     break;
-  // }
-
-  // let newImage = null;
+  let newImage = null;
   if (processedImageBuffer) {
     await cloudinaryHelper.deleteFromCloudinary(image?.publicId);
 
     // Convert the processed image buffer to a new Multer File object
-    // const processedFile = {
-    //   fieldname: 'file',
-    //   originalname: 'processed_image.png',
-    //   encoding: '7bit',
-    //   mimetype: 'image/png',
-    //   buffer: processedImageBuffer,
-    //   size: processedImageBuffer.length,
-    // };
+    const processedFile = {
+      fieldname: 'file',
+      originalname: 'processed_image.png',
+      encoding: '7bit',
+      mimetype: 'image/png',
+      buffer: processedImageBuffer,
+      size: processedImageBuffer.length,
+    };
 
     // Upload the processed image to Cloudinary
-    // const processedImage = await cloudinaryHelper.uploadToCloudinary(
-    //   processedFile as Express.Multer.File,
-    //   'Imagenius/custom-orders'
-    // );
-    // newImage = processedImage;
+    const processedImage = await cloudinaryHelper.uploadToCloudinary(
+      processedFile as Express.Multer.File,
+      'Imagenius/custom-orders'
+    );
+    newImage = processedImage;
   }
 
   const result = await CustomOrder.findByIdAndUpdate(

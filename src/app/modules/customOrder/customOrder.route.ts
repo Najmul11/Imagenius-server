@@ -19,7 +19,7 @@ router.patch(
 
 router.get(
   '/all-custom-orders',
-  auth(ENUM_USER_ROLE.SUPER_ADMIN),
+  auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.USER),
   CustomOrderController.getAllCustomOrders
 );
 

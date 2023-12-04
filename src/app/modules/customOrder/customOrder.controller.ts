@@ -3,6 +3,8 @@ import catchAsyncError from '../../../shared/catchAsyncError';
 import { CustomOrderService } from './customOrder.service';
 import httpStatus from 'http-status';
 import sendResponse from '../../../shared/sendResponse';
+import pick from '../../../shared/pick';
+import { customOrderFilterableFields } from './customOrder.constants';
 
 const createCustomOrder = catchAsyncError(
   async (req: Request, res: Response) => {
@@ -26,7 +28,8 @@ const createCustomOrder = catchAsyncError(
 );
 const getAllCustomOrders = catchAsyncError(
   async (req: Request, res: Response) => {
-    const result = await CustomOrderService.getAllCustomOrders();
+    const filters = pick(req.query, customOrderFilterableFields);
+    const result = await CustomOrderService.getAllCustomOrders(filters);
 
     sendResponse(res, {
       statusCode: httpStatus.OK,
